@@ -1,0 +1,60 @@
+plugins {
+    id 'java'
+    id("com.github.johnrengelman.shadow") version "8.1.1"
+}
+
+group 'Game'
+version 'App'
+
+repositories {
+    mavenCentral() // Репозиторий Maven Central
+}
+
+ext {
+    junitVersion = '5.10.2'
+}
+
+dependencies {
+    // Зависимости для JFreeChart и Log4j
+    implementation 'org.jfree:jfreechart:1.5.3'
+    implementation 'org.apache.logging.log4j:log4j-api:2.17.1'
+    implementation 'org.apache.logging.log4j:log4j-core:2.17.1'
+
+    // Зависимость для JavaFX Swing
+    implementation('org.openjfx:javafx-swing:21')
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8' // Установка кодировки
+}
+
+tasks.javadoc {
+    source = sourceSets.main.allJava
+    classpath += project.files(configurations.runtimeClasspath)
+    destinationDir = file("$buildDir/docs/javadoc")
+    options {
+        charSet = 'UTF-8' // Кодировка файла
+        links("https://docs.oracle.com/javase/8/docs/api/")
+    }
+}
+
+// Конфигурация для shadowJar
+tasks.shadowJar {
+    archiveBaseName.set('Main')
+    archiveVersion.set(project.version)
+    archiveClassifier.set('')
+    manifest {
+        attributes(
+                'Main-Class': 'Game.Game' // Укажите ваш главный класс
+        )
+    }
+}
+
+// Зависимость на создание shadowJar от сборки
+tasks.build {
+    dependsOn shadowJar
+}
+
+test {
+    useJUnitPlatform() // Использовать JUnit для тестов
+}
